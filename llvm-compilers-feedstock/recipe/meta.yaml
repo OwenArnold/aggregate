@@ -80,6 +80,8 @@ source:
   - url: http://{{ releases_url }}.llvm.org/{{ version_dir }}/libcxx-{{ version }}.src.tar.xz
     sha256: {{ libcxx_sha256 }}
     folder: projects/libcxx
+    patches:
+      - 0001-If-libc-abi-library-is-given-use-it-to-reexport.patch
   - url: http://{{ releases_url }}.llvm.org/{{ version_dir }}/libcxxabi-{{ version }}.src.tar.xz
     sha256: {{ libcxxabi_sha256 }}
     folder: projects/libcxxabi
@@ -158,6 +160,9 @@ source:
     sha256: {{ macosx_109_sdk_sha256 }}
     folder: bootstrap/MacOSX10.9.sdk
 
+build:
+  number: 1
+
 requirements:
   build:
     # we use selectors rather than jinja2 here because we only want to use the native
@@ -175,7 +180,7 @@ requirements:
     # macOS has its own uuid library. It includes uuid_string_t which llvm uses.
     - libuuid  # [not osx]
     # ld64 needs this.
-    - xar
+    - xar-bootstrap
     # We only use the static library from this and only get away with that as it depends on nothing.
     - zlib
 
