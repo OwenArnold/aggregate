@@ -84,11 +84,11 @@ function _tc_activation() {
 # When people are using conda-build, assume that adding rpath during build, and pointing at
 #    the host env's includes and libs is helpful default behavior
 if [ "${CONDA_BUILD:-0}" = "1" ]; then
-  CXXFLAGS_USED="@CXXFLAGS@ -I${PREFIX}/include -fdebug-prefix-map=${SRC_DIR}=/usr/local/src/conda/${PKG_NAME}-${PKG_VERSION} -fdebug-prefix-map=${PREFIX}=/usr/local/src/conda-prefix"
-  DEBUG_CXXFLAGS_USED="@CXXFLAGS@ @DEBUG_CXXFLAGS@ -I${PREFIX}/include -fdebug-prefix-map=${SRC_DIR}=/usr/local/src/conda/${PKG_NAME}-${PKG_VERSION} -fdebug-prefix-map=${PREFIX}=/usr/local/src/conda-prefix"
+  CXXFLAGS_USED="-march=core2 -mtune=haswell -mssse3 -ftree-vectorize -fPIC -fPIE -fstack-protector-strong -O2 -pipe -stdlib=libc++ -fvisibility-inlines-hidden -std=c++17 -fmessage-length=0 -I${PREFIX}/include -fdebug-prefix-map=${SRC_DIR}=/usr/local/src/conda/${PKG_NAME}-${PKG_VERSION} -fdebug-prefix-map=${PREFIX}=/usr/local/src/conda-prefix"
+  DEBUG_CXXFLAGS_USED="-march=core2 -mtune=haswell -mssse3 -ftree-vectorize -fPIC -fPIE -fstack-protector-strong -O2 -pipe -stdlib=libc++ -fvisibility-inlines-hidden -std=c++17 -fmessage-length=0 -Og -g -Wall -Wextra -I${PREFIX}/include -fdebug-prefix-map=${SRC_DIR}=/usr/local/src/conda/${PKG_NAME}-${PKG_VERSION} -fdebug-prefix-map=${PREFIX}=/usr/local/src/conda-prefix"
 else
-  CXXFLAGS_USED="@CXXFLAGS@"
-  DEBUG_CXXFLAGS_USED="@CXXFLAGS@ @DEBUG_CXXFLAGS@"
+  CXXFLAGS_USED="-march=core2 -mtune=haswell -mssse3 -ftree-vectorize -fPIC -fPIE -fstack-protector-strong -O2 -pipe -stdlib=libc++ -fvisibility-inlines-hidden -std=c++17 -fmessage-length=0"
+  DEBUG_CXXFLAGS_USED="-march=core2 -mtune=haswell -mssse3 -ftree-vectorize -fPIC -fPIE -fstack-protector-strong -O2 -pipe -stdlib=libc++ -fvisibility-inlines-hidden -std=c++17 -fmessage-length=0 -Og -g -Wall -Wextra"
 fi
 
 if [ "${CONDA_BUILD:-0}" = "1" ]; then
@@ -99,9 +99,9 @@ if [ "${CONDA_BUILD:-0}" = "1" ]; then
 fi
 
 _tc_activation \
-  activate host @CHOST@ @CHOST@- \
+  activate host  - \
   clang++ \
-  "CXX,${CXX:-@CHOST@-clang++}" \
+  "CXX,${CXX:--clang++}" \
   "CXXFLAGS,${CXXFLAGS:-${CXXFLAGS_USED}}" \
   "DEBUG_CXXFLAGS,${DEBUG_CXXFLAGS:-${DEBUG_CXXFLAGS_USED}}"
 

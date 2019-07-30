@@ -84,15 +84,15 @@ function _tc_activation() {
 # When people are using conda-build, assume that adding rpath during build, and pointing at
 #    the host env's includes and libs is helpful default behavior
 if [ "${CONDA_BUILD:-0}" = "1" ]; then
-  CFLAGS_USED="@CFLAGS@ -I${PREFIX}/include -fdebug-prefix-map=${SRC_DIR}=/usr/local/src/conda/${PKG_NAME}-${PKG_VERSION} -fdebug-prefix-map=${PREFIX}=/usr/local/src/conda-prefix"
-  DEBUG_CFLAGS_USED="@CFLAGS@ @DEBUG_CFLAGS@ -I${PREFIX}/include -fdebug-prefix-map=${SRC_DIR}=/usr/local/src/conda/${PKG_NAME}-${PKG_VERSION} -fdebug-prefix-map=${PREFIX}=/usr/local/src/conda-prefix"
-  LDFLAGS_USED="@LDFLAGS@ -Wl,-rpath,${PREFIX}/lib -L${PREFIX}/lib"
-  LDFLAGS_LD_USED="@LDFLAGS_LD@ -rpath ${PREFIX}/lib -L${PREFIX}/lib"
+  CFLAGS_USED="-march=core2 -mtune=haswell -mssse3 -ftree-vectorize -fPIC -fPIE -fstack-protector-strong -O2 -pipe -I${PREFIX}/include -fdebug-prefix-map=${SRC_DIR}=/usr/local/src/conda/${PKG_NAME}-${PKG_VERSION} -fdebug-prefix-map=${PREFIX}=/usr/local/src/conda-prefix"
+  DEBUG_CFLAGS_USED="-march=core2 -mtune=haswell -mssse3 -ftree-vectorize -fPIC -fPIE -fstack-protector-strong -O2 -pipe -Og -g -Wall -Wextra -I${PREFIX}/include -fdebug-prefix-map=${SRC_DIR}=/usr/local/src/conda/${PKG_NAME}-${PKG_VERSION} -fdebug-prefix-map=${PREFIX}=/usr/local/src/conda-prefix"
+  LDFLAGS_USED="-Wl,-pie -Wl,-headerpad_max_install_names -Wl,-dead_strip_dylibs -Wl,-rpath,${PREFIX}/lib -L${PREFIX}/lib"
+  LDFLAGS_LD_USED="-pie -headerpad_max_install_names -dead_strip_dylibs -rpath ${PREFIX}/lib -L${PREFIX}/lib"
 else
-  CFLAGS_USED="@CFLAGS@"
-  DEBUG_CFLAGS_USED="@CFLAGS@ @DEBUG_CFLAGS@"
-  LDFLAGS_USED="@LDFLAGS@"
-  LDFLAGS_LD_USED="@LDFLAGS_LD@"
+  CFLAGS_USED="-march=core2 -mtune=haswell -mssse3 -ftree-vectorize -fPIC -fPIE -fstack-protector-strong -O2 -pipe"
+  DEBUG_CFLAGS_USED="-march=core2 -mtune=haswell -mssse3 -ftree-vectorize -fPIC -fPIE -fstack-protector-strong -O2 -pipe -Og -g -Wall -Wextra"
+  LDFLAGS_USED="-Wl,-pie -Wl,-headerpad_max_install_names -Wl,-dead_strip_dylibs"
+  LDFLAGS_LD_USED="-pie -headerpad_max_install_names -dead_strip_dylibs"
 fi
 
 if [ "${CONDA_BUILD:-0}" = "1" ]; then
@@ -103,18 +103,18 @@ if [ "${CONDA_BUILD:-0}" = "1" ]; then
 fi
 
 _tc_activation \
-  deactivate host @CHOST@ @CHOST@- \
+  deactivate host  - \
   ar as checksyms codesign_allocate indr install_name_tool libtool lipo nm nmedit otool \
   pagestuff ranlib redo_prebinding seg_addr_table seg_hack segedit size strings strip \
   ld \
   clang \
-  "CC,${CC:-@CHOST@-clang}" \
-  "CPPFLAGS,${CPPFLAGS:-@CPPFLAGS@}" \
+  "CC,${CC:--clang}" \
+  "CPPFLAGS,${CPPFLAGS:--D_FORTIFY_SOURCE=2 -mmacosx-version-min=}" \
   "CFLAGS,${CFLAGS:-${CFLAGS_USED}}" \
   "LDFLAGS,${LDFLAGS:-${LDFLAGS_USED}}" \
   "LDFLAGS_LD,${LDFLAGS_LD:-${LDFLAGS_LD_USED}}" \
   "DEBUG_CFLAGS,${DEBUG_CFLAGS:-${DEBUG_CFLAGS_USED}}" \
-  "_CONDA_PYTHON_SYSCONFIGDATA_NAME,${_CONDA_PYTHON_SYSCONFIGDATA_NAME:-@_PYTHON_SYSCONFIGDATA_NAME@}" \
+  "_CONDA_PYTHON_SYSCONFIGDATA_NAME,${_CONDA_PYTHON_SYSCONFIGDATA_NAME:-_sysconfigdata_x86_64_apple_darwin13_4_0}" \
   "CONDA_BUILD_SYSROOT,${CONDA_BUILD_SYSROOT:-$(xcrun --show-sdk-path)}"
 
 if [ $? -ne 0 ]; then

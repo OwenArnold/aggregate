@@ -1,6 +1,6 @@
 package:
-  name: clang_{{ target_platform }}
-  version: 4.0.1
+  name: clang_7{{ target_platform }}
+  version: 7.0.0 
 
 build:
   skip: True  [not osx]
